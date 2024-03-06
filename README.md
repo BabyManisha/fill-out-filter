@@ -72,7 +72,9 @@ type ResponseFiltersType = ResponseFilter[];
 * NodeJS. 
 * Express.js
 
-#### Local Setup
+----
+
+### Local Setup
 1. Clone the Repo from https://github.com/BabyManisha/fill-out-filter.git
 ```
 git clone https://github.com/BabyManisha/fill-out-filter.git

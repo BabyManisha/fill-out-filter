@@ -22,15 +22,77 @@ app.get('/', (req, res) => {
 app.get('/:formId/filteredResponses', async (req, res) => {
   try {
     const { formId } = req.params;
+    const { filters = null , ...otherQueryParams } = req.query;
+
+    console.log("otherQueryParams:", otherQueryParams);
+
+    // Converting JSON stringified filters to an array of objects
+    const parsedFilters = JSON.parse(filters);
+    console.log("parsedFilters", parsedFilters);
 
     const apiKey = process.env.FILLOUT_API_KEY;
 
-    const response = await axios.get(`${process.env.FILLOUT_API_HOST}/${process.env.FILLOUT_API_PREFIX}/forms/${formId}/submissions`, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}` 
-        } 
+    const fillOutAPI =  `${process.env.FILLOUT_API_HOST}/${process.env.FILLOUT_API_PREFIX}/forms/${formId}/submissions?${new URLSearchParams(otherQueryParams)}`;
+
+    console.log("fillOutAPI:", fillOutAPI);
+
+    const response = await axios.get(fillOutAPI, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}` 
+      } 
+    });
+
+    // console.log("response.data===>", response.data);
+    
+    // Filtering the response based on the filters
+    if (parsedFilters) {
+      const filteredData = response.data?.responses?.filter(submission => {
+        return parsedFilters.every((filter) => {
+          const question = submission.questions.find(q => q.id === filter.id);
+
+          console.log("question:", question);
+
+          if (!question) return false;
+
+          const responseValue = question.value;
+          const filterValue = Date.parse(filter.value) ? new Date(filter.value) : filter.value;
+
+          // Checking for Date type Strings for easy comparison
+          let parsedResponseValue;
+          if (typeof responseValue === 'string') {
+            // parsing ISO dates if the response value is a date
+            parsedResponseValue = Date.parse(responseValue) ? new Date(responseValue) : responseValue;
+          } else {
+            parsedResponseValue = responseValue;
+          }
+
+          console.log("parsedResponseValue:", parsedResponseValue);
+          console.log("filterValue:", filterValue);
+
+          switch (filter.condition) {
+            case 'equals':
+              return parsedResponseValue === filterValue;
+            case 'does_not_equal':
+              return parsedResponseValue !== filterValue;
+            case 'greater_than':
+              return parsedResponseValue > filterValue;
+            case 'less_than':
+              return parsedResponseValue < filterValue;
+            default:
+              return false;
+          }
+        });
       });
-    res.send(response.data);
+
+      // Sending the filtered data as the response
+      res.json({
+        responses: filteredData,
+        totalResponses: filteredData.length,
+        pageCount: 1,
+      });
+    }
+    else
+      res.send(response.data);
   }
   catch (error) {
     console.error('Error fetching the data from the fillout API:', error);
