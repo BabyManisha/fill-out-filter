@@ -148,7 +148,12 @@ http://localhost:3000/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%
 
 > Root URL -> https://fill-out-filter.onrender.com/
 
-Example Production API -> https://fill-out-filter.onrender.com/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22value%22%3A%222021-08-25%22%7D%5D
+Example Production API for Successful Response -> https://fill-out-filter.onrender.com/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22value%22%3A%222021-08-25%22%7D%5D
+
+
+Example Production API for with 0 Response -> https://fill-out-filter.onrender.com/cLZojxk94ous/filteredresponses?limit=10&offset=100&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22value%22%3A%222021-08-25%22%7D%5D
+
+Example Production API for with Error Response -> https://fill-out-filter.onrender.com/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22
 
 --
 
