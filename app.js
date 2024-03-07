@@ -13,6 +13,11 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Default user to github wiki page
+app.get('/', (req, res) => {
+  res.redirect('https://github.com/BabyManisha/fill-out-filter/wiki/Welcome-to-Fill%E2%80%90Out%E2%80%90Filter');
+});
+
 // Endpoint for fetching the data from the fillout API
 app.get('/:formId/filteredResponses', async (req, res) => {
   try {

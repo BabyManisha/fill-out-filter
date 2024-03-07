@@ -1,4 +1,4 @@
-## Fill-Out-Filter
+## Fill-Out-Filter (https://fill-out-filter.onrender.com/)
 
 #### Specifications
 Node server contains only one endpoint, for fetching responses from a form, along with few query parameters includes filters. 
@@ -72,6 +72,7 @@ type ResponseFiltersType = ResponseFilter[];
 * NodeJS. 
 * Express.js
 
+#### Hosting with http://render.com/
 ----
 
 ### Local Setup
@@ -103,9 +104,8 @@ npm run start
 5. Access the server at http://localhost:3000
 
 > Sample Request:
-```
 http://localhost:3000/cLZojxk94ous/filteredResponses
-```
+
 > Sample Response:
 ```
 {
@@ -140,9 +140,15 @@ http://localhost:3000/cLZojxk94ous/filteredResponses
 ```
 
 > Example Request with query params & filters
-```
 http://localhost:3000/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22value%22%3A%222021-08-25%22%7D%5D
-```
+
+----
+
+### Production 
+
+> Root URL -> https://fill-out-filter.onrender.com/
+
+Example Production API -> https://fill-out-filter.onrender.com/cLZojxk94ous/filteredresponses?limit=10&offset=0&filters=%5B%7B%22id%22%3A%22bE2Bo4cGUv49cjnqZ4UnkW%22%2C%22condition%22%3A%22does_not_equal%22%2C%22value%22%3A%22Johnny%22%7D%2C%7B%22id%22%3A%22dSRAe3hygqVwTpPK69p5td%22%2C%22condition%22%3A%22less_than%22%2C%22value%22%3A%222021-08-25%22%7D%5D
 
 --
 
