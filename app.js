@@ -13,44 +13,60 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Welcome to SM World!!');
-});
-
 // Endpoint for fetching the data from the fillout API
 app.get('/:formId/filteredResponses', async (req, res) => {
   try {
     const { formId } = req.params;
     const { filters = null , ...otherQueryParams } = req.query;
-
-    console.log("otherQueryParams:", otherQueryParams);
-
     // Converting JSON stringified filters to an array of objects
     const parsedFilters = JSON.parse(filters);
-    console.log("parsedFilters", parsedFilters);
 
+    const pageSize = parseInt(req.query.limit || process.env.DEFAULT_LIMIT);
     const apiKey = process.env.FILLOUT_API_KEY;
 
-    const fillOutAPI =  `${process.env.FILLOUT_API_HOST}/${process.env.FILLOUT_API_PREFIX}/forms/${formId}/submissions?${new URLSearchParams(otherQueryParams)}`;
+    let queryParams = new URLSearchParams(otherQueryParams);
 
-    console.log("fillOutAPI:", fillOutAPI);
+    const fillOutAPI = `${process.env.FILLOUT_API_HOST}/${process.env.FILLOUT_API_PREFIX}/forms/${formId}/submissions`;
 
-    const response = await axios.get(fillOutAPI, {
-      headers: {
-        'Authorization': `Bearer ${apiKey}` 
-      } 
-    });
+    // Fetch initial page of responses to get total count
+    const initialResponse = await axios.get(`${fillOutAPI}?${queryParams}`, { headers: { Authorization: `Bearer ${apiKey}` } });
 
-    // console.log("response.data===>", response.data);
-    
+    // Fetching the data from the fillout API concurrently for the subsequnce pages
+    const fetchAllData = async () => {
+      const totalResponses = initialResponse.data?.totalResponses;
+      const offset = parseInt(req.query.offset || process.env.DEFAULT_OFFSET);
+      const promises = [initialResponse];
+
+      for (let page = offset + pageSize; page < totalResponses;) {
+        queryParams.set('offset', page);
+        promises.push(axios.get(`${fillOutAPI}?${queryParams}`, {
+          headers: {
+            'Authorization': `Bearer ${apiKey}` 
+          } 
+        }));
+        page += pageSize;
+      }
+
+      const responses = await Promise.all(promises);
+      return responses.flatMap(response => response.data.responses);
+    }
+
+    const allResponses = await fetchAllData();
+
+    const returnResponse = (responseData) => {
+      const totalResponses = responseData.length;
+      res.json({
+        responses: responseData,
+        totalResponses,
+        pageCount: Math.ceil(totalResponses / pageSize),
+      });
+    }
+
     // Filtering the response based on the filters
     if (parsedFilters) {
-      const filteredData = response.data?.responses?.filter(submission => {
+      const filteredData = allResponses.filter(submission => {
         return parsedFilters.every((filter) => {
           const question = submission.questions.find(q => q.id === filter.id);
-
-          console.log("question:", question);
 
           if (!question) return false;
 
@@ -66,9 +82,6 @@ app.get('/:formId/filteredResponses', async (req, res) => {
             parsedResponseValue = responseValue;
           }
 
-          console.log("parsedResponseValue:", parsedResponseValue);
-          console.log("filterValue:", filterValue);
-
           switch (filter.condition) {
             case 'equals':
               return parsedResponseValue === filterValue;
@@ -83,16 +96,10 @@ app.get('/:formId/filteredResponses', async (req, res) => {
           }
         });
       });
-
-      // Sending the filtered data as the response
-      res.json({
-        responses: filteredData,
-        totalResponses: filteredData.length,
-        pageCount: 1,
-      });
+      returnResponse(filteredData);
+    } else {
+      returnResponse(allResponses);
     }
-    else
-      res.send(response.data);
   }
   catch (error) {
     console.error('Error fetching the data from the fillout API:', error);
